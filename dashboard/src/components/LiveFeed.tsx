@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { WS_URL } from "../api";
+import { api, WS_URL } from "../api";
 import type { AegisEvent } from "../types";
 
 type Filter = "all" | "blocked" | "allowed" | "agent";
@@ -31,6 +31,16 @@ export default function LiveFeed() {
   const [connected, setConnected] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const retry = useRef<number>();
+
+  // Backfill recent history so the feed isn't empty on load; live events are merged on top.
+  useEffect(() => {
+    api.recentEvents().then((history) =>
+      setEvents((live) => {
+        const ids = new Set(live.map((e) => e.id));
+        return [...live, ...history.filter((e) => !ids.has(e.id))].slice(0, 300);
+      }),
+    ).catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     let ws: WebSocket;

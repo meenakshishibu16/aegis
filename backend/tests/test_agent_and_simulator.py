@@ -76,6 +76,13 @@ def test_markdown_image_rendering_is_egress_checked(ctx: ToolContext, gateway: G
     assert CANARY in ctx.load("fetch_log")[0]["url"]
 
 
+def test_empty_reply_gets_one_nudge(ctx: ToolContext, gateway: Gateway) -> None:
+    llm = ScriptedClient([final(""), tool_call("read_inbox"), final("Summary")])
+    result = run_agent("t", True, llm, ctx, gateway)
+    assert result.final_answer == "Summary"
+    assert llm.calls[1][-1]["content"].startswith("Your last reply was empty")
+
+
 def test_events_emitted(ctx: ToolContext, gateway: Gateway) -> None:
     result = run_agent("summarize", True, ScriptedClient(EXFIL_SCRIPT), ctx, gateway)
     stages = {(e["stage"], e["decision"]) for e in result.events}

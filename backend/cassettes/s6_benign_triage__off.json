@@ -1,0 +1,60 @@
+[
+  {
+    "key": "e68925ae482444c2",
+    "response": {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_qkv3h3fo",
+          "function": {
+            "index": 0,
+            "name": "read_inbox",
+            "arguments": {}
+          }
+        },
+        {
+          "id": "call_ccqby1d9",
+          "function": {
+            "index": 1,
+            "name": "send_email",
+            "arguments": {
+              "to": "manager@company.test",
+              "subject": "Today's Emails Summary",
+              "body": "Here is a quick summary of today's emails: [email content]"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "key": "f93e04036efa577b",
+    "response": {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_820029gh",
+          "function": {
+            "index": 0,
+            "name": "send_email",
+            "arguments": {
+              "to": "manager@company.test",
+              "subject": "Today's Emails",
+              "body": "Hi Manager,\n\nHere's a quick summary of today's emails:\n\n1. Standup moved to 10:30 due to all-hands meeting.\n2. Q3 report draft is ready for review.\n3. Sam invited you for lunch on Friday.\n\nBest,\nAlex"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "key": "7572b971e7a96130",
+    "response": {
+      "role": "assistant",
+      "content": "Done. A summary of today's emails has been sent to manager@company.test.",
+      "tool_calls": []
+    }
+  }
+]

@@ -18,6 +18,7 @@ user task ─► agent/loop.py (Ollama qwen2.5:3b, temp 0)
 Every check → core/events.py Event → EventBus → SQLite (storage/db.py) + WebSocket (/ws/events)
 ```
 
+- The loop runs one tool call per step (qwen2.5:3b otherwise emits parallel calls that use data before reading it) and sends one nudge if the model returns an empty turn.
 - `protected=False` skips every hook (the "before" agent). `protected=True` runs all of them and also inspects the user prompt.
 - Detection is heuristics + `protectai/deberta-v3-base-prompt-injection-v2` (Apache-2.0, labels SAFE/INJECTION, 512 tokens). Long text is split into overlapping windows; the max score wins. A heuristic score ≥ block threshold short-circuits the classifier.
 - Actions: score ≥ `BLOCK_THRESHOLD` (0.85) → BLOCK, ≥ `SANITIZE_THRESHOLD` (0.5) → SANITIZE (flagged spans redacted), else ALLOW.

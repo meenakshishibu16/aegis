@@ -1,4 +1,4 @@
-import type { Config, Scenario, ScenarioResult, Stats } from "./types";
+import type { AegisEvent, Config, Scenario, ScenarioResult, Stats } from "./types";
 
 export const API_URL: string = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 export const WS_URL = API_URL.replace(/^http/, "ws") + "/ws/events";
@@ -16,6 +16,7 @@ export const api = {
   config: () => request<Config>("/config"),
   scenarios: () => request<Scenario[]>("/scenarios"),
   stats: () => request<Stats>("/stats"),
+  recentEvents: (limit = 100) => request<AegisEvent[]>(`/events?limit=${limit}`),
   runScenario: (id: string, isProtected: boolean) =>
     request<ScenarioResult>(`/simulator/run/${id}?protected=${isProtected}`, { method: "POST" }),
 };

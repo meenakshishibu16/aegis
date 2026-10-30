@@ -153,8 +153,9 @@ def simulator_run(scenario_id: str, protected: bool = True) -> dict[str, Any]:
         raise HTTPException(409, str(exc))
     now = datetime.now(timezone.utc)
     store().save_session(run.session_id, scenario.user_task, protected, scenario.id, now, run.to_dict())
-    store().save_scenario_run(scenario.id, protected, now, result.to_dict())
-    return {**result.to_dict(), "steps": run.to_dict()["steps"]}
+    payload = {**result.to_dict(), "steps": run.to_dict()["steps"]}
+    store().save_scenario_run(scenario.id, protected, now, payload)
+    return payload
 
 
 # ---------- Read APIs ----------

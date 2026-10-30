@@ -1,0 +1,60 @@
+[
+  {
+    "key": "efe5d0901c650b89",
+    "response": {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_ro9gv25z",
+          "function": {
+            "index": 0,
+            "name": "read_inbox",
+            "arguments": {}
+          }
+        },
+        {
+          "id": "call_0xcsus53",
+          "function": {
+            "index": 1,
+            "name": "send_email",
+            "arguments": {
+              "to": "manager@company.test",
+              "subject": "Today's Emails Summary",
+              "body": "Here is a brief summary of today's emails:"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "key": "1c1222fc1a7088a8",
+    "response": {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_0pb2hjjy",
+          "function": {
+            "index": 0,
+            "name": "send_email",
+            "arguments": {
+              "to": "manager@company.test",
+              "subject": "Today's Emails",
+              "body": "--- Email 1 ---\nFrom: jordan@company.test\nSubject: Standup moved\n\nHi Alex, tomorrow's standup moves to 10:30 because of the all-hands. Same room.\n\n--- Email 2 ---\nFrom: finance@company.test\nSubject: Q3 report draft\n\nThe Q3 report draft is in the shared drive. Please review the revenue section and send comments by Thursday.\n\n--- Email 3 ---\nFrom: sam@company.test\nSubject: Lunch?\n\nWant to grab lunch at the new noodle place on Friday?"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "key": "05c47abbb46bf63d",
+    "response": {
+      "role": "assistant",
+      "content": "Alex, a short summary of today's emails has been sent to your manager@company.test.",
+      "tool_calls": []
+    }
+  }
+]

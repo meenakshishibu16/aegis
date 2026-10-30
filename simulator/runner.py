@@ -33,6 +33,7 @@ def main() -> int:
     store = Store()
     bus.subscribe(store.save_event)
     gateway = default_gateway()
+    gateway.detector.inspect("warm-up: load the classifier before timing anything")
     modes = {"both": [False, True], "off": [False], "on": [True]}[args.mode]
 
     results = []
@@ -45,7 +46,7 @@ def main() -> int:
             result, run = run_scenario(scenario, protected, gateway, record=args.record, replay=args.replay)
             now = datetime.now(timezone.utc)
             store.save_session(run.session_id, scenario.user_task, protected, scenario.id, now, run.to_dict())
-            store.save_scenario_run(scenario.id, protected, now, result.to_dict())
+            store.save_scenario_run(scenario.id, protected, now, {**result.to_dict(), "steps": run.to_dict()["steps"]})
             results.append(result.to_dict())
             print(f"  condition_met={result.condition_met} decision={result.aegis_decision} stage={result.caught_stage} "
                   f"rules={result.caught_rules} ({result.duration_s}s)", flush=True)
