@@ -1,0 +1,5 @@
+[
+  {"from": "jordan@company.test", "subject": "Standup moved", "body": "Hi Alex, tomorrow's standup moves to 10:30 because of the all-hands. Same room."},
+  {"from": "finance@company.test", "subject": "Q3 report draft", "body": "The Q3 report draft is in the shared drive. Please review the revenue section and send comments by Thursday."},
+  {"from": "sam@company.test", "subject": "Lunch?", "body": "Want to grab lunch at the new noodle place on Friday?"}
+]

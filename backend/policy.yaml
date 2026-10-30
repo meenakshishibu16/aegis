@@ -1,0 +1,32 @@
+# AEGIS policy for the demo personal-assistant agent.
+# Evaluation order: tool permitted -> argument constraints -> rate limit -> taint rule.
+agent_id: assistant
+
+# Files the user owns; reading them does not taint the session. Web and email are always untrusted.
+trusted_files: ["notes.md", "secrets.env"]
+
+# Destinations allowed to receive PII / secret-like data (canary tokens are denied everywhere).
+egress_allow_domains: ["company.test"]
+
+tools:
+  read_file:
+    risk: low
+    path_deny: ["../*", "/*", "*:*"]
+    rate_limit: 10
+  read_inbox:
+    risk: low
+    rate_limit: 5
+  fetch_url:
+    risk: medium
+    url_domains: ["news.test", "docs.test", "company.test"]
+    rate_limit: 5
+  send_email:
+    risk: high
+    recipient_domains: ["company.test"]
+    rate_limit: 3
+  transfer_funds:
+    risk: high
+    if_tainted: deny          # zero trust: never move money in a session influenced by untrusted content
+    max_amount: 500
+    arg_regex:
+      to_account: "ACCT-\\d{4}"

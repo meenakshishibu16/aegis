@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Runtime state
+backend/runs/
+backend/aegis.db
+simulator/results/latest.json
+
+# Env
+.env
+
+# Node
+dashboard/node_modules/
+dashboard/dist/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
