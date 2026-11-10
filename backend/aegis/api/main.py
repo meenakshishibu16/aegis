@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Any, AsyncIterator
 
+import httpx
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -131,7 +132,10 @@ def agent_run(req: AgentRunRequest) -> dict[str, Any]:
     store().save_session(session.id, req.task, req.protected, None, datetime.now(timezone.utc))
     llm = OllamaClient(settings.agent_model, settings.ollama_url, settings.ollama_num_ctx, settings.ollama_timeout_s)
     ctx = ToolContext(run_dir=RUNS_DIR / session.id, inbox_path=INBOXES_DIR / "benign.json")
-    result = run_agent(req.task, req.protected, llm, ctx, gateway(), session=session).to_dict()
+    try:
+        result = run_agent(req.task, req.protected, llm, ctx, gateway(), session=session).to_dict()
+    except httpx.HTTPError as exc:
+        raise HTTPException(502, f"Ollama call failed for model {settings.agent_model} at {settings.ollama_url}: {exc}") from exc
     store().save_session(session.id, req.task, req.protected, None, datetime.now(timezone.utc), result)
     return result
 
