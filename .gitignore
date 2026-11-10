@@ -21,3 +21,6 @@ dashboard/dist/
 .vscode/
 .idea/
 .DS_Store
+
+# trained model weights (700 MB) - download separately
+models/

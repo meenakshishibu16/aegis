@@ -1,0 +1,148 @@
+{
+  "base_model": "protectai/deberta-v3-base-prompt-injection-v2",
+  "approach": "continued fine-tuning of the ProtectAI baseline on direct + indirect (BIPIA) injection",
+  "dataset_counts": {
+    "train_total": 3842,
+    "train_by_source": {
+      "bipia": 2000,
+      "safeguard": 1350,
+      "deepset": 492
+    },
+    "val_total": 454,
+    "val_by_source": {
+      "bipia": 250,
+      "safeguard": 150,
+      "deepset": 54
+    },
+    "test_by_set": {
+      "bipia_heldout (indirect)": 1422,
+      "safe-guard test (direct)": 2060,
+      "deepset test (direct)": 116
+    }
+  },
+  "split_rule": "BIPIA split by document: md5(clean_text) % 10 -> 0 test, 1 val, else train; test documents receive only text_attack_test.json attacks; BIPIA train capped at 2000, val at 250 (class-balanced), test uncapped. safe-guard/deepset: 10% of train rows held out for val; official HF test splits for testing.",
+  "hyperparams": {
+    "epochs": 2,
+    "max_len": 256,
+    "batch": 16,
+    "lr": 2e-05,
+    "weight_decay": 0.01,
+    "warmup": 0.1,
+    "crop_chars": 1500,
+    "seed": 0
+  },
+  "epochs_trained": 2,
+  "best_epoch": 1,
+  "hardware": "Tesla T4",
+  "training_time_min": 3.54,
+  "threshold": 0.51,
+  "threshold_rule": "highest validation detection rate with false-alarm rate < 2%",
+  "val_at_threshold": {
+    "detection_rate": 0.9096045197740112,
+    "false_alarm_rate": 0.010830324909747292,
+    "f1": 0.9442815249266863,
+    "auc": 0.9883742274980115
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "val": {
+        "detection_rate": 0.9096045197740112,
+        "false_alarm_rate": 0.010830324909747292,
+        "f1": 0.9442815249266863,
+        "auc": 0.9883742274980115
+      },
+      "val_bipia": {
+        "detection_rate": 0.896,
+        "false_alarm_rate": 0.008,
+        "f1": 0.9411764705882353,
+        "auc": 0.977024
+      },
+      "secs": 99.82214093208313
+    },
+    {
+      "epoch": 2,
+      "val": {
+        "detection_rate": 0.903954802259887,
+        "false_alarm_rate": 0.007220216606498195,
+        "f1": 0.943952802359882,
+        "auc": 0.9845805543657835
+      },
+      "val_bipia": {
+        "detection_rate": 0.896,
+        "false_alarm_rate": 0.0,
+        "f1": 0.9451476793248945,
+        "auc": 0.9738239999999999
+      },
+      "secs": 103.83032631874084
+    }
+  ],
+  "results": {
+    "bipia_heldout (indirect)": {
+      "n": 1422,
+      "n_injection": 711,
+      "baseline (ProtectAI) @0.50": {
+        "detection_rate": 0.22784810126582278,
+        "false_alarm_rate": 0.3431786216596343,
+        "f1": 0.2900626678603402,
+        "auc": 0.3618722070893198
+      },
+      "fine-tuned @0.50": {
+        "detection_rate": 0.8621659634317862,
+        "false_alarm_rate": 0.0028129395218002813,
+        "f1": 0.9245852187028658,
+        "auc": 0.9637235644018746
+      },
+      "fine-tuned @0.51": {
+        "detection_rate": 0.8621659634317862,
+        "false_alarm_rate": 0.0028129395218002813,
+        "f1": 0.9245852187028658,
+        "auc": 0.9637235644018746
+      }
+    },
+    "safe-guard test (direct)": {
+      "n": 2060,
+      "n_injection": 650,
+      "baseline (ProtectAI) @0.50": {
+        "detection_rate": 0.8353846153846154,
+        "false_alarm_rate": 0.0014184397163120568,
+        "f1": 0.9087866108786611,
+        "auc": 0.9921200218221495
+      },
+      "fine-tuned @0.50": {
+        "detection_rate": 0.9876923076923076,
+        "false_alarm_rate": 0.014184397163120567,
+        "f1": 0.9786585365853658,
+        "auc": 0.9985379159847245
+      },
+      "fine-tuned @0.51": {
+        "detection_rate": 0.9876923076923076,
+        "false_alarm_rate": 0.01347517730496454,
+        "f1": 0.9794050343249427,
+        "auc": 0.9985379159847245
+      }
+    },
+    "deepset test (direct)": {
+      "n": 116,
+      "n_injection": 60,
+      "baseline (ProtectAI) @0.50": {
+        "detection_rate": 0.36666666666666664,
+        "false_alarm_rate": 0.0,
+        "f1": 0.5365853658536586,
+        "auc": 0.9013392857142857
+      },
+      "fine-tuned @0.50": {
+        "detection_rate": 0.7833333333333333,
+        "false_alarm_rate": 0.0,
+        "f1": 0.8785046728971962,
+        "auc": 0.9592261904761904
+      },
+      "fine-tuned @0.51": {
+        "detection_rate": 0.7833333333333333,
+        "false_alarm_rate": 0.0,
+        "f1": 0.8785046728971962,
+        "auc": 0.9592261904761904
+      }
+    }
+  }
+}

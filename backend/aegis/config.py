@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
@@ -35,6 +36,13 @@ class Settings(BaseSettings):
     policy_path: Path = BACKEND_DIR / "policy.yaml"
     db_url: str = f"sqlite:///{(BACKEND_DIR / 'aegis.db').as_posix()}"
     cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+    @field_validator("classifier_model")
+    @classmethod
+    def _local_model_path(cls, v: str) -> str:
+        """A relative path to a local model folder (e.g. models/aegis-detector) is resolved from the repo root."""
+        local = ROOT_DIR / v
+        return str(local) if local.is_dir() else v
 
 
 settings = Settings()
