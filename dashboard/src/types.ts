@@ -74,3 +74,26 @@ export interface Config {
   agent_model: string;
   classifier_model: string | null;
 }
+
+export interface InspectResult {
+  score: number;
+  label: "benign" | "suspicious" | "injection";
+  action: "ALLOW" | "SANITIZE" | "BLOCK";
+  triggered_layers: string[];
+  spans: string[];
+  reasons: string[];
+  rule_ids: string[];
+  latency_ms: number;
+  sanitized_text: string;
+}
+
+export interface AgentRunResult {
+  session_id: string;
+  task: string;
+  protected: boolean;
+  final_answer: string;
+  steps: Step[];
+  tainted_at_step: number | null;
+  aegis_latency_ms: number;
+  duration_s: number;
+}

@@ -24,16 +24,20 @@ export default function StatsPanel({ stats }: { stats: Stats | null }) {
   const on = stats.attack_success_rate_on;
 
   return (
-    <section className="panel p-4">
-      <h2 className="mb-3 text-lg font-semibold">Stats</h2>
+    <section className="panel p-5">
+      {stats.attacks_run_off + stats.attacks_run_on === 0 && (
+        <p className="mb-3 text-sm text-ink-400">No results yet. Run some attack demos first.</p>
+      )}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Tile label="Attack success, AEGIS OFF" value={pct(off)} sub={`${stats.attacks_run_off} attack runs`} tone={off ? "crit" : undefined} />
-        <Tile label="Attack success, AEGIS ON" value={pct(on)} sub={`${stats.attacks_run_on} attack runs`} tone={on === 0 ? "good" : on ? "crit" : undefined} />
-        <Tile label="False positive rate (benign)" value={pct(stats.false_positive_rate)} sub="benign control blocked" />
-        <Tile label="Check latency p50" value={`${stats.latency_ms.inspect?.p50 ?? 0} ms`} sub="content inspection" />
+        <Tile label="Attacks that worked without AEGIS" value={pct(off)} sub={`out of ${stats.attacks_run_off} runs`} tone={off ? "crit" : undefined} />
+        <Tile label="Attacks that worked with AEGIS" value={pct(on)} sub={`out of ${stats.attacks_run_on} runs`} tone={on === 0 ? "good" : on ? "crit" : undefined} />
+        <Tile label="False alarms" value={pct(stats.false_positive_rate)} sub="normal tasks wrongly blocked" />
+        <Tile label="Time per check" value={`${stats.latency_ms.inspect?.p50 ?? 0} ms`} sub="typical delay AEGIS adds" />
       </div>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <details className="mt-4">
+      <summary className="cursor-pointer text-sm text-ink-400">More numbers</summary>
+      <div className="mt-3 grid gap-4 md:grid-cols-2">
         <div>
           <h3 className="mb-1 text-sm text-ink-300">Interventions by stage <span className="text-ink-400">(block, deny, sanitize)</span></h3>
           <div className="h-48">
@@ -72,6 +76,7 @@ export default function StatsPanel({ stats }: { stats: Stats | null }) {
           <p className="mt-2 text-[11px] text-ink-400">Excludes agent LLM time. Inspect includes the DeBERTa classifier on CPU.</p>
         </div>
       </div>
+      </details>
     </section>
   );
 }

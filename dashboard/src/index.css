@@ -15,3 +15,7 @@ body {
 .panel {
   @apply rounded-lg border border-ink-700 bg-ink-900;
 }
+
+.btn{border-width:1px;border-radius:.375rem;padding:.375rem .75rem;font-size:.875rem}
+.btn:hover:not(:disabled){background:#262624}
+.btn:disabled{opacity:.4;cursor:not-allowed}

@@ -2,13 +2,28 @@ import { useEffect, useRef, useState } from "react";
 import { api, WS_URL } from "../api";
 import type { AegisEvent } from "../types";
 
-type Filter = "all" | "blocked" | "allowed" | "agent";
+type Filter = "everything" | "only problems";
 
 const FILTERS: Record<Filter, (e: AegisEvent) => boolean> = {
-  all: () => true,
-  blocked: (e) => ["BLOCK", "DENY", "SANITIZE", "TAINT"].includes(e.decision),
-  allowed: (e) => e.decision === "ALLOW",
-  agent: (e) => e.stage === "agent",
+  everything: () => true,
+  "only problems": (e) => ["BLOCK", "DENY", "SANITIZE", "TAINT"].includes(e.decision),
+};
+
+const STAGE_LABEL: Record<AegisEvent["stage"], string> = {
+  inspect: "Checked incoming text",
+  authorize: "Checked an action",
+  egress: "Checked outgoing data",
+  agent: "Assistant",
+};
+const DECISION_LABEL: Record<string, string> = {
+  ALLOW: "Allowed",
+  BLOCK: "Blocked",
+  DENY: "Stopped",
+  SANITIZE: "Cleaned",
+  TAINT: "Marked untrusted",
+  START: "Started",
+  TOOL: "Used a tool",
+  FINAL: "Finished",
 };
 
 const STYLE: Record<string, string> = {
@@ -29,7 +44,7 @@ const BADGE: Record<string, string> = {
 export default function LiveFeed() {
   const [events, setEvents] = useState<AegisEvent[]>([]);
   const [connected, setConnected] = useState(false);
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("everything");
   const retry = useRef<number>();
 
   // Backfill recent history so the feed isn't empty on load; live events are merged on top.
@@ -65,39 +80,32 @@ export default function LiveFeed() {
   const shown = events.filter(FILTERS[filter]);
 
   return (
-    <section className="panel flex max-h-[calc(100vh-6rem)] min-h-[400px] flex-col p-4 xl:sticky xl:top-4">
-      <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Live Feed</h2>
-        <span className={`text-xs ${connected ? "text-good" : "text-crit"}`}>{connected ? "● live" : "○ disconnected"}</span>
-      </div>
-      <div className="mb-3 flex gap-1 text-xs">
+    <section className="panel flex max-h-[calc(100vh-12rem)] min-h-[400px] flex-col p-5">
+      <div className="mb-3 flex items-center gap-1 text-sm">
         {(Object.keys(FILTERS) as Filter[]).map((f) => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`rounded px-2 py-1 capitalize ${filter === f ? "bg-ink-700 text-ink-100" : "text-ink-400 hover:bg-ink-800"}`}>
+            className={`rounded px-3 py-1 capitalize ${filter === f ? "bg-ink-700 text-ink-100" : "text-ink-400 hover:bg-ink-800"}`}>
             {f}
           </button>
         ))}
-        <button onClick={() => setEvents([])} className="ml-auto rounded px-2 py-1 text-ink-400 hover:bg-ink-800">clear</button>
+        <span className={`ml-auto text-xs ${connected ? "text-good" : "text-crit"}`}>{connected ? "● live" : "○ disconnected"}</span>
+        <button onClick={() => setEvents([])} className="rounded px-2 py-1 text-ink-400 hover:bg-ink-800">clear</button>
       </div>
       <ol className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
-        {shown.length === 0 && <li className="m-auto text-sm text-ink-400">Waiting for events… run a scenario.</li>}
+        {shown.length === 0 && <li className="m-auto text-sm text-ink-400">Nothing yet. Check some text or run a demo.</li>}
         {shown.map((e) => (
-          <li key={e.id} className={`rounded border border-ink-700 border-l-4 bg-ink-950 px-2 py-1.5 text-xs ${STYLE[e.decision] ?? "border-l-ink-700"}`}>
+          <li key={e.id} className={`rounded border border-ink-700 border-l-4 bg-ink-950 px-3 py-2 text-sm ${STYLE[e.decision] ?? "border-l-ink-700"}`}>
             <div className="flex items-center gap-2">
-              <span className={`font-bold ${BADGE[e.decision] ?? "text-ink-300"}`}>{e.decision}</span>
-              <span className="text-ink-400">{e.stage}</span>
-              {e.tool_name && <span className="font-mono text-ink-300">{e.tool_name}</span>}
-              {!e.protected && <span className="rounded bg-crit/20 px-1 text-[10px] text-crit">UNPROTECTED</span>}
-              <span className="ml-auto text-[10px] text-ink-400">
-                {e.latency_ms > 0 && `${e.latency_ms.toFixed(1)}ms · `}{new Date(e.timestamp).toLocaleTimeString()}
-              </span>
+              <span className={`font-semibold ${BADGE[e.decision] ?? "text-ink-300"}`}>{DECISION_LABEL[e.decision] ?? e.decision}</span>
+              <span className="text-ink-400">· {STAGE_LABEL[e.stage]}</span>
+              {e.tool_name && <span className="font-mono text-xs text-ink-300">{e.tool_name}</span>}
+              {!e.protected && <span className="rounded bg-crit/20 px-1 text-[10px] text-crit">AEGIS OFF</span>}
+              <span className="ml-auto text-[10px] text-ink-400">{new Date(e.timestamp).toLocaleTimeString()}</span>
             </div>
-            {e.reasons.length > 0 && <div className="mt-0.5 text-ink-300">{e.reasons.join("; ")}</div>}
-            {e.rule_ids.length > 0 && <div className="mt-0.5 font-mono text-[10px] text-ink-400">{e.rule_ids.join(" ")}</div>}
+            {e.reasons.length > 0 && <div className="mt-0.5 text-xs text-ink-300">{e.reasons.join("; ")}</div>}
             {e.spans.length > 0 && (
-              <div className="mt-1 break-words rounded bg-crit/10 px-1.5 py-0.5 font-mono text-[10px] text-crit">“{e.spans[0]}”</div>
+              <div className="mt-1 break-words rounded bg-crit/10 px-1.5 py-0.5 text-xs text-crit">“{e.spans[0]}”</div>
             )}
-            {!e.spans.length && e.args_excerpt && <div className="mt-0.5 break-all font-mono text-[10px] text-ink-400">{e.args_excerpt}</div>}
           </li>
         ))}
       </ol>
