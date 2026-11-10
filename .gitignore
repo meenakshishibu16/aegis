@@ -8,6 +8,7 @@ __pycache__/
 backend/runs/
 backend/aegis.db
 simulator/results/latest.json
+simulator/results/benchmark_scores.json
 
 # Env
 .env
